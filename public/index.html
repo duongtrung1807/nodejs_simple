@@ -161,23 +161,35 @@
         // Todo management
         async function fetchTodos() {
             try {
+                console.log('Fetching todos with token:', token);
                 const response = await fetch(`${API_URL}/api/todos`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
                 });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch todos');
+                }
+                
                 const todos = await response.json();
+                console.log('Fetched todos:', todos);
                 renderTodos(todos);
             } catch (error) {
-                alert('Error fetching todos');
+                console.error('Error fetching todos:', error);
+                alert('Error fetching todos: ' + error.message);
             }
         }
 
         function renderTodos(todos) {
             const todoList = document.getElementById('todoList');
             todoList.innerHTML = todos.map(todo => `
-                <div class="bg-white rounded-lg shadow-md p-6 flex items-center justify-between">
+                <div class="bg-white rounded-lg shadow-md p-6 flex items-center justify-between" data-todo-id="${todo.id}">
                     <div>
-                        <h3 class="text-lg font-semibold ${todo.status === 'completed' ? 'line-through text-gray-500' : ''}">${todo.title}</h3>
-                        <p class="text-gray-600">${todo.description || ''}</p>
+                        <h3 class="text-lg font-semibold todo-title ${todo.status === 'completed' ? 'line-through text-gray-500' : ''}">${todo.title}</h3>
+                        <p class="text-gray-600 todo-description">${todo.description || ''}</p>
                     </div>
                     <div class="flex space-x-2">
                         <select onchange="updateTodoStatus('${todo.id}', this.value)" class="border rounded-lg px-2 py-1">
@@ -223,21 +235,27 @@
 
         async function updateTodoStatus(id, status) {
             try {
+                console.log('Updating todo:', { id, status });
                 const response = await fetch(`${API_URL}/api/todos/${id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ status })
+                    body: JSON.stringify({ 
+                        status,
+                        title: document.querySelector(`[data-todo-id="${id}"]`)?.querySelector('.todo-title')?.textContent || '',
+                        description: document.querySelector(`[data-todo-id="${id}"]`)?.querySelector('.todo-description')?.textContent || ''
+                    })
                 });
-                if (response.ok) {
-                    fetchTodos();
-                } else {
-                    alert('Error updating todo');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to update todo');
                 }
+                await fetchTodos();
             } catch (error) {
-                alert('Error updating todo');
+                console.error('Error updating todo:', error);
+                alert('Error updating todo: ' + error.message);
             }
         }
 

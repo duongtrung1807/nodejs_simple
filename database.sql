@@ -1,5 +1,11 @@
 -- Create database
 CREATE DATABASE IF NOT EXISTS todo_app;
+
+-- Create user and grant privileges
+CREATE USER IF NOT EXISTS 'dbuser'@'localhost' IDENTIFIED BY '123456';
+GRANT ALL PRIVILEGES ON todo_app.* TO 'dbuser'@'localhost';
+FLUSH PRIVILEGES;
+
 USE todo_app;
 
 -- Create users table

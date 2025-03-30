@@ -17,9 +17,12 @@ class TodoController {
 
     static async getTodos(req, res) {
         try {
+            console.log('Fetching todos for user:', req.user.id);
             const todos = await Todo.findByUserId(req.user.id);
+            console.log('Fetched todos:', todos);
             res.json(todos);
         } catch (error) {
+            console.error('Error in getTodos:', error);
             res.status(500).json({ error: 'Error fetching todos' });
         }
     }
@@ -39,17 +42,25 @@ class TodoController {
     static async updateTodo(req, res) {
         try {
             const { title, description, status } = req.body;
+            console.log('Updating todo:', {
+                todoId: req.params.id,
+                userId: req.user.id,
+                updates: { title, description, status }
+            });
             const updated = await Todo.update(req.params.id, req.user.id, {
                 title,
                 description,
                 status
             });
+            console.log('Update result:', updated);
             if (!updated) {
                 return res.status(404).json({ error: 'Todo not found' });
             }
             const todo = await Todo.findById(req.params.id, req.user.id);
+            console.log('Updated todo:', todo);
             res.json(todo);
         } catch (error) {
+            console.error('Error in updateTodo:', error);
             res.status(500).json({ error: 'Error updating todo' });
         }
     }
