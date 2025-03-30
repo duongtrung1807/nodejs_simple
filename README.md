@@ -1,56 +1,132 @@
-# Simple Node.js Web Application
+# Modern TODO Application
 
-A lightweight Node.js web application optimized for AWS deployment.
+A full-stack TODO application built with Node.js, Express, MySQL, and modern frontend technologies.
 
 ## Features
 
-- Express.js web server
-- Modern UI with responsive design
-- Health check endpoint
-- Environment configuration
-- Ready for AWS deployment
+- 🔐 User Authentication (Register/Login)
+- 📝 Create, Read, Update, and Delete TODOs
+- 🔄 Real-time status updates (Pending, In Progress, Completed)
+- 🎨 Modern UI with Tailwind CSS
+- 🔒 Secure JWT-based authentication
+- 🗃️ MySQL database for persistent storage
 
-## Local Development
+## Prerequisites
 
-1. Install dependencies:
-```bash
-npm install
+- Node.js (v14 or higher)
+- MySQL Server (v8.0 or higher)
+- npm (Node Package Manager)
+
+## Setup Instructions
+
+### 1. Database Setup
+
+```sql
+CREATE DATABASE todo_app;
+CREATE USER 'dbuser'@'localhost' IDENTIFIED BY '123456';
+GRANT ALL PRIVILEGES ON todo_app.* TO 'dbuser'@'localhost';
+FLUSH PRIVILEGES;
+
+USE todo_app;
+
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE todos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending',
+    user_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 ```
 
-2. Start the development server:
+### 2. Environment Setup
+
+Create a `.env` file in the root directory with the following content:
+
+```env
+DB_HOST=localhost
+DB_USER=dbuser
+DB_PASSWORD=123456
+DB_NAME=todo_app
+JWT_SECRET=your_jwt_secret_key
+```
+
+### 3. Installation
+
 ```bash
-npm run dev
+# Install dependencies
+npm install
+
+# Start the application
+node app.js
 ```
 
 The application will be available at `http://localhost:3000`
 
-## Production Deployment
-
-### AWS Deployment Steps
-
-1. Create an EC2 instance (t4g.nano recommended for cost optimization)
-2. Install Node.js and npm on the instance
-3. Clone this repository
-4. Install dependencies: `npm install --production`
-5. Set up environment variables
-6. Start the application: `npm start`
-
-### Estimated AWS Costs
-
-- EC2 t4g.nano: ~$3/month
-- Data transfer: ~$0.09/GB after first 1GB (free)
-- Total estimated minimum cost: $3-7/month
-
-## Environment Variables
-
-- `PORT`: Server port (default: 3000)
-- `NODE_ENV`: Environment mode (development/production)
-
 ## API Endpoints
 
-- `GET /`: Main application page
-- `GET /api/health`: Health check endpoint
+### Authentication
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/login` - Login user
+
+### TODOs
+- `GET /api/todos` - Get all todos for authenticated user
+- `POST /api/todos` - Create a new todo
+- `PUT /api/todos/:id` - Update a todo
+- `DELETE /api/todos/:id` - Delete a todo
+
+## Usage
+
+1. Register a new account or login with existing credentials
+2. Add new todos using the input field at the top
+3. Update todo status using the dropdown menu (Pending/In Progress/Completed)
+4. Delete todos using the trash icon
+5. Logout using the button in the top-right corner
+
+## Security Features
+
+- Password hashing using bcrypt
+- JWT-based authentication
+- Protected API endpoints
+- SQL injection prevention
+- XSS protection
+
+## Tech Stack
+
+- **Backend**: Node.js, Express
+- **Database**: MySQL
+- **Authentication**: JWT (JSON Web Tokens)
+- **Frontend**: HTML, JavaScript, Tailwind CSS
+- **Security**: bcrypt for password hashing
+
+## Error Handling
+
+The application includes comprehensive error handling for:
+- Database connection issues
+- Authentication failures
+- Invalid API requests
+- Server errors
+
+## Contributing
+
+1. Fork the repository
+2. Create a new branch
+3. Make your changes
+4. Submit a pull request
 
 ## License
 
-ISC 
+MIT License
+
+## Support
+
+For support, please open an issue in the repository or contact the maintainers. 
